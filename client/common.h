@@ -16,9 +16,6 @@
 #include <openssl/encoder.h>
 #include <openssl/decoder.h>
 
-
-#define SERVER_IP "127.0.0.1"
-#define PORT 12345
 #define BUFFER_SIZE 512
 #define MAXLINE 256
 #define MdName EVP_sha256()

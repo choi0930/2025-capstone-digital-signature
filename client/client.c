@@ -1,11 +1,12 @@
 //client.c
 #include "common.h"
 
-int main() {
+int main(int argc, char *argv[]) {
     struct stat obj;
     int sockfd, fd, file_size, status;
     struct sockaddr_in server_addr;
     char buffer[BUFFER_SIZE], filename[MAXLINE], buf[BUFFER_SIZE], file_buf[BUFFER_SIZE];
+    
 
     // 1. 소켓 생성
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -14,8 +15,8 @@ int main() {
     // 2. 서버 주소 설정
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(PORT);
-	inet_pton(AF_INET, SERVER_IP, &server_addr.sin_addr);
+    server_addr.sin_port = htons(atoi(argv[2]));
+	inet_pton(AF_INET, argv[1], &server_addr.sin_addr);
 
     // 3. 서버에 연결
     if(connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1){
@@ -56,15 +57,14 @@ int main() {
                 continue;
             }
 
-            strcpy(buf, "put ");
-            strcat(buf, filename);
+            strcpy(buf, "put ");    //명령어
+            strcat(buf, filename);  //명령어 + 파일명명
             
             //printf("명령어 조합 완료: %s\n", buf); 
             //printf("명령어 전송 시작\n");
             send(sockfd, buf, BUFFER_SIZE, 0);//명령어 전송
             
-            //파일 크기 
-            stat(filename, &obj);
+            stat(filename, &obj);   //파일 크기
             file_size = obj.st_size;	//stat 명령를 통해 파일 사이즈 받기
             printf("업로드 파일 크기 : %d\n", file_size);
 
@@ -73,8 +73,10 @@ int main() {
             printf("========[업로드 시작]========\n");
             printf("\n");
             memset(file_buf, 0x00, BUFFER_SIZE);
-            
+
+            int cnt = 1;
             while((bytes_send = read(fd, file_buf, BUFFER_SIZE)) >0){
+                printf("Fragment %d\n", cnt);
                 Length_Info info; //파일 길이, 서명길이, 총길이 데이터를 저장할 구조체 선언
                 sign = NULL;
                 sign_len = 0;
@@ -92,8 +94,8 @@ int main() {
                 send(sockfd, &info, sizeof(Length_Info), 0); //파일 길이, 서명길이, 총길이 데이터를 담은 구조체 send
 
                 //전송할 파일크기 + 디지털 서명 길이 
-                printf("    파일 길이: (%d) || 디지털 서명 길이: (%zu)\n", bytes_send, sign_len);
-                printf("    총 패킷 길이 : %d\n", total_len);
+                printf("\t파일 길이: (%d) || 디지털 서명 길이: (%zu)\n", bytes_send, sign_len);
+                printf("\t총 패킷 길이: %d\n", total_len);
 
                 //전송용 버퍼 동적 생성
                 unsigned char *send_buf = (unsigned char *)malloc(total_len);
@@ -116,8 +118,9 @@ int main() {
                 }
                 printf("\n");
                 printf("----------------------------\n");
+                printf("\n");
                 free(send_buf);
-                
+                cnt++;
             }
             close(fd);
             printf("\n");
@@ -134,4 +137,3 @@ int main() {
     close(sockfd);
     return 0;
 }
-

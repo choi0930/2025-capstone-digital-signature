@@ -32,5 +32,4 @@ int ecdsa_verify(char *file_buf, int len, unsigned char *sign, size_t sign_len){
 
     EVP_MD_CTX_free(ctx);
     EVP_PKEY_free(pkey);
-
 }

@@ -52,7 +52,7 @@ int main() {
 				close(client_fd);
 				break;
 			}
-			else if(strcmp(command, "put") == 0){
+			else if(strcmp(command, "put") == 0){	//put 명령어
 				int check, file_len, bytes_left, total_len= 0;
 				int success = 1;
 				size_t sign_len;
@@ -76,7 +76,9 @@ int main() {
 				recv(client_fd, &file_size, sizeof(int), 0);	//파일의 전체 크기 수신
 				bytes_left = file_size;
 				
-				while(bytes_left > 0){ //클라이언트애서 받은 파일 크기만큼 반복문수행
+				int cnt = 1;
+				while(bytes_left > 0){ //클라이언트에서 받은 파일 크기만큼 반복문수행
+					printf("Fragment %d\n", cnt);
 					Length_Info info;
 					memset(file_buf, 0x00, BUFFER_SIZE);
 					memset(sign_buff, 0x00, 100);
@@ -89,8 +91,8 @@ int main() {
 					sign_len = info.sign_len;
 					total_len = info.total_len;
 
-					printf("	파일 길이: (%d) || 디지털 서명 길이: (%zu)\n", file_len, sign_len);
-                    printf("	총 패킷 길이 : %d\n", total_len);
+					printf("\t파일 길이: (%d) || 디지털 서명 길이: (%zu)\n", file_len, sign_len);
+                    printf("\t총 패킷 길이: %d\n", total_len);
 
 					//수신용 버퍼 동적 생성
                 	unsigned char *recv_buf = (unsigned char *)malloc(total_len);
@@ -111,14 +113,13 @@ int main() {
 					memcpy(sign_buff, recv_buf + file_len, sign_len);
 
 					printf("\n");
-					printf("----------[서명 검증]----------\n");
-					printf("\n");
+					printf("[서명 검증]--->");
 
 					if(ecdsa_verify(file_buf, file_len, sign_buff, sign_len)){ //서명 검증
-						printf("	verify success\n");
+						printf("\tverify success\n");
 						check = write(fd, file_buf, file_len);	//검증 성공시 파일 데이터 write			
 					}else{
-						printf("	verify fail\n");
+						printf("\tverify fail\n");
 						success = 0;
 						free(recv_buf);
 						break;
@@ -136,6 +137,8 @@ int main() {
 
 					printf("\n");
 					printf("-------------------------------\n");
+					printf("\n");
+					cnt++;
 				}
 				
 				if(file_len < 0){
@@ -164,4 +167,3 @@ int main() {
     close(server_fd);
     return 0;
 }
-
