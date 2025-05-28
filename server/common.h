@@ -18,10 +18,10 @@
 
 #define MdName EVP_sha256()
 
-int ecdsaVerify(char *fileBuf, int len, unsigned char *sign, size_t signLen);
+int ecdsa_verify(char *file_buf, int len, unsigned char *sign, size_t sign_len);
 
 typedef struct {
-    int signOutLen;
-    int fileLen;
-    int totalLen;
-}LengthInfo;
+    int sign_len;
+    int file_len;
+    int total_len;
+}Length_Info;

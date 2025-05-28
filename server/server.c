@@ -55,7 +55,7 @@ int main() {
 			else if(strcmp(command, "put") == 0){
 				int check, file_len, bytes_left, total_len= 0;
 				int success = 1;
-				size_t signLen;
+				size_t sign_len;
 				char file_data[BUFFER_SIZE];
 				memset(file_data, 0x00, BUFFER_SIZE);			
 
@@ -77,19 +77,19 @@ int main() {
 				bytes_left = file_size;
 				
 				while(bytes_left > 0){ //클라이언트애서 받은 파일 크기만큼 반복문수행
-					LengthInfo info;
+					Length_Info info;
 					memset(file_buf, 0x00, BUFFER_SIZE);
 					memset(sign_buff, 0x00, 100);
-                	signLen = 0;
+                	sign_len = 0;
 					total_len = 0;
 
-					recv(client_fd, &info, sizeof(LengthInfo), 0); //파일 길이, 서명길이, 총길이 데이터를 담은 구조체 recv
+					recv(client_fd, &info, sizeof(Length_Info), 0); //파일 길이, 서명길이, 총길이 데이터를 담은 구조체 recv
 					
-					file_len = info.fileLen;
-					signLen = info.signOutLen;
-					total_len = info.totalLen;
+					file_len = info.file_len;
+					sign_len = info.sign_len;
+					total_len = info.total_len;
 
-					printf("	파일 길이: (%d) || 디지털 서명 길이: (%zu)\n", file_len, signLen);
+					printf("	파일 길이: (%d) || 디지털 서명 길이: (%zu)\n", file_len, sign_len);
                     printf("	총 패킷 길이 : %d\n", total_len);
 
 					//수신용 버퍼 동적 생성
@@ -100,7 +100,7 @@ int main() {
                     	break;
                 	}
 
-					int recv_bytes = recv(client_fd, recv_buf, total_len, 0);	
+					int recv_bytes = recv(client_fd, recv_buf, total_len, 0); //자른 파일 데이터 + 데이터에 대한 서명 값 recv	
 					if(recv_bytes != total_len){
                     	perror("send failed");
                    		success =0;
@@ -108,15 +108,15 @@ int main() {
                 	}
 
 					memcpy(file_buf, recv_buf, file_len);
-					memcpy(sign_buff, recv_buf + file_len, signLen);
+					memcpy(sign_buff, recv_buf + file_len, sign_len);
 
 					printf("\n");
 					printf("----------[서명 검증]----------\n");
 					printf("\n");
 
-					if(ecdsaVerify(file_buf, file_len, sign_buff, signLen)){ //서명 검증
+					if(ecdsa_verify(file_buf, file_len, sign_buff, sign_len)){ //서명 검증
 						printf("	verify success\n");
-						check = write(fd, file_buf, file_len);				
+						check = write(fd, file_buf, file_len);	//검증 성공시 파일 데이터 write			
 					}else{
 						printf("	verify fail\n");
 						success = 0;
@@ -149,7 +149,7 @@ int main() {
 					printf("%s save success\n", filename);
 				}else{
 					printf("%s save fail\n", filename);
-					remove(filename);
+					remove(filename); //검증이 실패했거나 파일 write, 수신에 오류가 발생시 파일 삭제
 				}
 
 				send(client_fd, &success, sizeof(int), 0);		//write 성공 여부를 client 송신
