@@ -61,6 +61,7 @@ int main() {
 
 				sscanf(buffer + strlen(command), "%s", filename); //command 이후 filename에 포인팅
 				printf("filename: %s\n", filename);
+
 				while(1){
 					fd = open(filename, O_CREAT | O_EXCL | O_WRONLY, 0666);	
 					if(fd == -1){
@@ -76,15 +77,18 @@ int main() {
 				bytes_left = file_size;
 				
 				while(bytes_left > 0){ //클라이언트애서 받은 파일 크기만큼 반복문수행
+					LengthInfo info;
 					memset(file_buf, 0x00, BUFFER_SIZE);
 					memset(sign_buff, 0x00, 100);
                 	signLen = 0;
 					total_len = 0;
 
-					recv(client_fd, &signLen, sizeof(signLen), 0); //디지털 서명 길이
-					recv(client_fd, &file_len, sizeof(int), 0); //클라이언트에서 읽은 파일 크기 (중요!)
-					recv(client_fd, &total_len, sizeof(int), 0); //파일 + 디지털서명 길이 
+					recv(client_fd, &info, sizeof(LengthInfo), 0); //파일 길이, 서명길이, 총길이 데이터를 담은 구조체 recv
 					
+					file_len = info.fileLen;
+					signLen = info.signOutLen;
+					total_len = info.totalLen;
+
 					printf("	파일 길이: (%d) || 디지털 서명 길이: (%zu)\n", file_len, signLen);
                     printf("	총 패킷 길이 : %d\n", total_len);
 
@@ -109,6 +113,7 @@ int main() {
 					printf("\n");
 					printf("----------[서명 검증]----------\n");
 					printf("\n");
+
 					if(ecdsaVerify(file_buf, file_len, sign_buff, signLen)){ //서명 검증
 						printf("	verify success\n");
 						check = write(fd, file_buf, file_len);				

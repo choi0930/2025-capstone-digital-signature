@@ -19,3 +19,9 @@
 #define MdName EVP_sha256()
 
 int ecdsaVerify(char *fileBuf, int len, unsigned char *sign, size_t signLen);
+
+typedef struct {
+    int signOutLen;
+    int fileLen;
+    int totalLen;
+}LengthInfo;

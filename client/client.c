@@ -75,18 +75,21 @@ int main() {
             memset(file_buf, 0x00, BUFFER_SIZE);
             
             while((bytes_send = read(fd, file_buf, BUFFER_SIZE)) >0){
-                
+                LengthInfo info; //파일 길이, 서명길이, 총길이 데이터를 저장할 구조체 선언
                 signOut = NULL;
                 signOutLen = 0;
                
                 //printf("서명시작\n");
                 ecdsa_sign(file_buf, bytes_send, &signOut, &signOutLen); //서명 동작
-
+                
+                //서명길이+자른 파일길이
                 total_len = (int)signOutLen + bytes_send;
 
-                send(sockfd, &signOutLen, sizeof(signOutLen), 0); //서명 길이 전송
-                send(sockfd, &bytes_send, sizeof(int), 0); //읽은 파일 크기 전송 (중요!)
-                send(sockfd, &total_len, sizeof(int), 0); // 전송할 파일크기 + 디지털 서명 길이
+                info.signOutLen = (int)signOutLen;
+                info.fileLen = bytes_send;
+                info.totalLen = total_len;
+
+                send(sockfd, &info, sizeof(LengthInfo), 0); //파일 길이, 서명길이, 총길이 데이터를 담은 구조체 send
 
                 //전송할 파일크기 + 디지털 서명 길이 
                 printf("    파일 길이: (%d) || 디지털 서명 길이: (%zu)\n", bytes_send, signOutLen);
@@ -99,6 +102,7 @@ int main() {
                     status = 0;
                     break;
                 }
+
                 //데이터 결합 (파일데이터 + 디지털 서명)
                 memcpy(send_buf, file_buf, bytes_send);
                 memcpy(send_buf+bytes_send, signOut, signOutLen);

@@ -25,3 +25,9 @@
 
 int hashFunction(char file_buf[BUFFER_SIZE], int file_length);
 int ecdsa_sign(char *fileBuf, int len, unsigned char **signOut, size_t *signOutLen);
+
+typedef struct {
+    int signOutLen;
+    int fileLen;
+    int totalLen;
+}LengthInfo;
