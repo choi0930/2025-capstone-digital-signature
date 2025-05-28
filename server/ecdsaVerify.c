@@ -1,6 +1,6 @@
 #include "common.h"
 
-int ecdsaVerify(char *fileBuf, int len, unsigned char *sign, size_t signLen){
+int ecdsa_verify(char *file_buf, int len, unsigned char *sign, size_t sign_len){
 
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
     
@@ -26,9 +26,9 @@ int ecdsaVerify(char *fileBuf, int len, unsigned char *sign, size_t signLen){
         return -13;
     }
 
-    EVP_DigestVerifyUpdate(ctx, fileBuf, len);
+    EVP_DigestVerifyUpdate(ctx, file_buf, len);
 
-    return(EVP_DigestVerifyFinal(ctx, sign, signLen));
+    return(EVP_DigestVerifyFinal(ctx, sign, sign_len));
 
     EVP_MD_CTX_free(ctx);
     EVP_PKEY_free(pkey);

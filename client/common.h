@@ -23,5 +23,10 @@
 #define MAXLINE 256
 #define MdName EVP_sha256()
 
-int hashFunction(char file_buf[BUFFER_SIZE], int file_length);
-int ecdsa_sign(char *fileBuf, int len, unsigned char **signOut, size_t *signOutLen);
+int ecdsa_sign(char *file_buf, int len, unsigned char **sign, size_t *sign_len);
+
+typedef struct {
+    int sign_len;
+    int file_len;
+    int total_len;
+}Length_Info;
