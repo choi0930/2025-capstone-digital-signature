@@ -6,7 +6,7 @@ int main(int argc, char *argv[]) {
     int sockfd, fd, file_size, status;
     struct sockaddr_in server_addr;
     char buffer[BUFFER_SIZE], filename[MAXLINE], buf[BUFFER_SIZE], file_buf[BUFFER_SIZE];
-    
+
     // 1. 소켓 생성
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if(sockfd == -1){perror("socket"); exit(1);}
@@ -22,7 +22,10 @@ int main(int argc, char *argv[]) {
         perror("connect"); close(sockfd); exit(1);}
     printf("서버에 연결됨\n");
     
-    send_pub_key(sockfd);
+    //인증서 전송
+    send_cert(sockfd); 
+
+   // send_pub_key(sockfd);
 
     // 4. 데이터 송수신
     while(1){
