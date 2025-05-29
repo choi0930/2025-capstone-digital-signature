@@ -25,6 +25,8 @@ int main(int argc, char *argv[]) {
     //인증서 전송
     send_cert(sockfd); 
 
+   // send_pub_key(sockfd);
+
     // 4. 데이터 송수신
     while(1){
         printf("명령어 입력 [put, exit](종료: exit): ");

@@ -28,6 +28,7 @@ int main() {
 
 	while(1){
 		EVP_PKEY *pub_key = NULL;
+
     	// 4. 리슨
     	if(listen(server_fd, 5) == -1){perror("listen"); close(server_fd);exit(1);}
     	printf("서버 대기 중...\n");
@@ -40,6 +41,8 @@ int main() {
 
 		cert_get_pubkey(client_fd, &pub_key);
 
+		//EVP_PKEY *pub_key = recv_pub_key(client_fd);
+		
 		while(1){
 			memset(buffer, 0, BUFFER_SIZE);
 			printf("명령 대기 중...\n");

@@ -20,7 +20,10 @@
 
 #define MdName EVP_sha256()
 
+
 int cert_get_pubkey(int client_fd, EVP_PKEY **pkey);
+//EVP_PKEY* recv_pub_key(int client_fd);
+
 int ecdsa_verify(char *file_buf, int len, unsigned char *sign, size_t sign_len, EVP_PKEY *pkey);
 
 typedef struct {
