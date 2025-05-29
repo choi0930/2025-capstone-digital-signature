@@ -17,7 +17,7 @@ int cert_get_pubkey(int client_fd, EVP_PKEY **pkey) {
     }
     
     recv(client_fd, buf, cert_len, 0);
-    //printf("%02X\n", buf);   
+    
     const unsigned char *p = buf;
     cert = d2i_X509(NULL, &p, cert_len);
     free(buf);

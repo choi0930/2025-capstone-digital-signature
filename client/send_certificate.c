@@ -13,7 +13,7 @@ int send_cert(int sockfd){
     fclose(fp);
 
     if(!cert){
-        fprintf(stderr, "인증서 로딩 실패");
+        fprintf(stderr, "인증서 로딩 실패\n");
         return -15;
     }
     int len = i2d_X509(cert, NULL);
@@ -25,16 +25,16 @@ int send_cert(int sockfd){
     
     unsigned char *buf = malloc(len);
     unsigned char *p = buf;
-    printf("인증서 길이 : %d\n", len);
+   
     i2d_X509(cert, &p); // X509 구조체 -> DER 인코딩
 
     send(sockfd, &len, sizeof(int), 0); //길이 전송
-    //printf("%02X\n", buf);   
+   
     send(sockfd, buf, len, 0); //DER 인코딩괸 인증서 전송
 
     free(buf);
     X509_free(cert);
-
+    printf("인증서 전송됨 :: 인증서 길이 : %d\n", len);
     return 0;
 }
 

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 int main() {
-    FILE *fp = fopen("sample.txt", "w");
+    FILE *fp = fopen("./client_file/sample.txt", "w");
     if (fp == NULL) {
         perror("파일 열기 실패");
         return 1;

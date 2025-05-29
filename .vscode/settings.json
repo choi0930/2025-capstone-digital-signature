@@ -3,7 +3,8 @@
         "common.h": "c",
         "encoder.h": "c",
         "decoder.h": "c",
-        "err.h": "c"
+        "err.h": "c",
+        "fcntl.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

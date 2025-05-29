@@ -16,7 +16,8 @@ int ecdsa_sign(char *file_buf, int len, unsigned char **sign, size_t *sign_len){
         fprintf(stderr, "개인 키 로딩 실패");
         return -12;
     }
-    
+   
+    /* 키 출력
 		BIO *bio = BIO_new(BIO_s_mem());
    		PEM_write_bio_PUBKEY(bio, pkey);
 
@@ -27,6 +28,7 @@ int ecdsa_sign(char *file_buf, int len, unsigned char **sign, size_t *sign_len){
     	printf("%.*s", (int)len2, data);
 
     	BIO_free(bio);
+    */
 
     //ctx 초기화
     if(EVP_DigestSignInit(ctx, NULL, MdName, NULL, pkey) != 1){

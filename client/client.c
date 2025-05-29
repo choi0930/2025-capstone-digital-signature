@@ -5,7 +5,7 @@ int main(int argc, char *argv[]) {
     struct stat obj;
     int sockfd, fd, file_size, status;
     struct sockaddr_in server_addr;
-    char buffer[BUFFER_SIZE], filename[MAXLINE], buf[BUFFER_SIZE], file_buf[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE], filename[MAXLINE], buf[BUFFER_SIZE], file_buf[BUFFER_SIZE], full_path[BUFFER_SIZE];
 
     // 1. 소켓 생성
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -23,13 +23,15 @@ int main(int argc, char *argv[]) {
     printf("서버에 연결됨\n");
     
     //인증서 전송
+    printf("----------------------------\n");
     send_cert(sockfd); 
-
-   // send_pub_key(sockfd);
+    printf("----------------------------\n");
 
     // 4. 데이터 송수신
     while(1){
-        printf("명령어 입력 [put, exit](종료: exit): ");
+        memset(full_path, 0x00, BUFFER_SIZE);
+
+        printf("명령어 입력 [put, file_ls, exit](종료: exit): ");
         fgets(buffer, BUFFER_SIZE, stdin);
         buffer[strcspn(buffer, "\n")] = 0;  
 
@@ -37,12 +39,17 @@ int main(int argc, char *argv[]) {
 			send(sockfd, buffer, 5, 0);
 			printf("연결 종료\n");
 			break;
-		}	
-        else if(strcmp(buffer, "put") == 0){ //put 명령어
+		}else if(strcmp(buffer, "file_ls") == 0){ //file_ls명령어
+            
+            print_ls();
+
+        }else if(strcmp(buffer, "put") == 0){ //put 명령어
             unsigned char *sign;
             size_t sign_len;
             int bytes_send, total_len = 0;
 
+            print_ls();
+           
             printf("업로드 할 파일명을 입력해주세요 :");
             if(fgets(filename, sizeof(filename), stdin) == NULL){
 		    	printf("입력 오류!\n");
@@ -55,8 +62,9 @@ int main(int argc, char *argv[]) {
                 printf("파일명이 비어있습니다. 다시 입력해주세요.\n");
                 continue;
             }
-            
-            if((fd = open(filename, O_RDONLY)) == -1){//파일 open
+            snprintf(full_path, sizeof(full_path), "./file/%s", filename);
+
+            if((fd = open(full_path, O_RDONLY)) == -1){//파일 open
                 printf("파일이 없습니다.\n");
                 continue;
             }
@@ -68,7 +76,7 @@ int main(int argc, char *argv[]) {
             //printf("명령어 전송 시작\n");
             send(sockfd, buf, BUFFER_SIZE, 0);//명령어 전송
             
-            stat(filename, &obj);   //파일 크기
+            stat(full_path, &obj);   //파일 크기
             file_size = obj.st_size;	//stat 명령를 통해 파일 사이즈 받기
             printf("업로드 파일 크기 : %d\n", file_size);
 

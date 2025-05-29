@@ -9,7 +9,7 @@ int main() {
     int server_fd, client_fd, fd, file_size;
     struct sockaddr_in server_addr, client_addr;
     socklen_t client_len;
-	char buffer[BUFFER_SIZE], command[5], filename[256], file_buf[BUFFER_SIZE], sign_buff[100];
+	char buffer[BUFFER_SIZE], command[5], filename[256], file_buf[BUFFER_SIZE], sign_buff[100], full_path[BUFFER_SIZE];
 
   	// 1. 소켓 생성
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -70,7 +70,8 @@ int main() {
 				printf("filename: %s\n", filename);
 
 				while(1){
-					fd = open(filename, O_CREAT | O_EXCL | O_WRONLY, 0666);	
+					snprintf(full_path, sizeof(full_path), "./file/%s", filename);
+					fd = open(full_path, O_CREAT | O_EXCL | O_WRONLY, 0666);	
 					if(fd == -1){
 						sprintf(filename + strlen(filename), "_1");}
 					else
