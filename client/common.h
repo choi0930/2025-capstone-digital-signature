@@ -20,6 +20,7 @@
 #define MAXLINE 256
 #define MdName EVP_sha256()
 
+int send_pub_key(int sockfd);
 int ecdsa_sign(char *file_buf, int len, unsigned char **sign, size_t *sign_len);
 
 typedef struct {
