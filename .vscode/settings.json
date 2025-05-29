@@ -2,6 +2,8 @@
     "files.associations": {
         "common.h": "c",
         "encoder.h": "c",
-        "decoder.h": "c"
-    }
+        "decoder.h": "c",
+        "err.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

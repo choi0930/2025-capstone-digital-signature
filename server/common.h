@@ -13,12 +13,15 @@
 #include <openssl/pem.h>
 #include <openssl/evp.h>
 #include <openssl/x509.h>
-#include <openssl/encoder.h>
-#include <openssl/decoder.h>
+#include <openssl/x509v3.h>
+
+//#include <openssl/encoder.h>
+//#include <openssl/decoder.h>
 
 #define MdName EVP_sha256()
 
-int ecdsa_verify(char *file_buf, int len, unsigned char *sign, size_t sign_len);
+int cert_get_pubkey(int client_fd, EVP_PKEY **pkey);
+int ecdsa_verify(char *file_buf, int len, unsigned char *sign, size_t sign_len, EVP_PKEY *pkey);
 
 typedef struct {
     int sign_len;

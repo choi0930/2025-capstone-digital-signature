@@ -4,7 +4,7 @@ int ecdsa_sign(char *file_buf, int len, unsigned char **sign, size_t *sign_len){
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
     
     //개인키 가져오기
-    FILE *fp = fopen("ec_private_key.pem", "r");
+    FILE *fp = fopen("./client_key/ec_priv_key.pem", "r");
     if(!fp){
         perror("개인 키 파일 열기 실패");
         return -11;
@@ -16,6 +16,17 @@ int ecdsa_sign(char *file_buf, int len, unsigned char **sign, size_t *sign_len){
         fprintf(stderr, "개인 키 로딩 실패");
         return -12;
     }
+    
+		BIO *bio = BIO_new(BIO_s_mem());
+   		PEM_write_bio_PUBKEY(bio, pkey);
+
+    	char *data;
+   		 long len2 = BIO_get_mem_data(bio, &data);
+
+    	// 문자열 출력
+    	printf("%.*s", (int)len2, data);
+
+    	BIO_free(bio);
 
     //ctx 초기화
     if(EVP_DigestSignInit(ctx, NULL, MdName, NULL, pkey) != 1){

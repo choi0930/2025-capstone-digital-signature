@@ -24,8 +24,10 @@ int main() {
     // 3. 바인드
     if(bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1){
         perror("bind"); close(server_fd); exit(1);}
-	
+		
+
 	while(1){
+		EVP_PKEY *pub_key = NULL;
     	// 4. 리슨
     	if(listen(server_fd, 5) == -1){perror("listen"); close(server_fd);exit(1);}
     	printf("서버 대기 중...\n");
@@ -35,6 +37,8 @@ int main() {
     	client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_len);
     	if(client_fd == -1){perror("accept"); close(server_fd); exit(1);}
     	printf("클라이언트 연결됨\n");
+
+		cert_get_pubkey(client_fd, &pub_key);
 
 		while(1){
 			memset(buffer, 0, BUFFER_SIZE);
@@ -115,7 +119,7 @@ int main() {
 					printf("\n");
 					printf("[서명 검증]--->");
 
-					if(ecdsa_verify(file_buf, file_len, sign_buff, sign_len)){ //서명 검증
+					if(ecdsa_verify(file_buf, file_len, sign_buff, sign_len, pub_key)){ //서명 검증
 						printf("\tverify success\n");
 						check = write(fd, file_buf, file_len);	//검증 성공시 파일 데이터 write			
 					}else{
@@ -161,7 +165,9 @@ int main() {
 				printf("=======[데이터 수신 끝]=======\n");
 			}
     	}	
+		EVP_PKEY_free(pub_key);
 	}
+	
     // 7. 종료
     close(client_fd);
     close(server_fd);
