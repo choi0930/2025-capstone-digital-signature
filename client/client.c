@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
     // 3. 서버에 연결
     if(connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1){
         perror("connect"); close(sockfd); exit(1);}
-    printf("서버에 연결됨\n");
+    printf("[%s:%s 서버에 연결됨]\n", argv[1], argv[2]);
     
     //인증서 전송
     printf("----------------------------\n");
@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 
             filename[strcspn(filename, "\n")] = 0;  // 엔터 제거
             
-            printf("filename: %s\n", filename);
+            printf("File_name: %s\n", filename);
             if(strlen(filename) == 0){
                 printf("파일명이 비어있습니다. 다시 입력해주세요.\n");
                 continue;
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
             
             stat(full_path, &obj);   //파일 크기
             file_size = obj.st_size;	//stat 명령를 통해 파일 사이즈 받기
-            printf("업로드 파일 크기 : %d\n", file_size);
+            printf("File_size: %d byte\n\n", file_size);
 
             send(sockfd, &file_size, sizeof(int), 0); //파일 크기 전송
 
@@ -90,6 +90,8 @@ int main(int argc, char *argv[]) {
 
             int cnt = 1;
             while((bytes_send = read(fd, file_buf, BUFFER_SIZE)) >0){
+                if(cnt != 1)
+                    printf("-----------------------------\n\n");
                 printf("Fragment %d\n", cnt);
                 Length_Info info; //파일 길이, 서명길이, 총길이 데이터를 저장할 구조체 선언
                 sign = NULL;
@@ -109,7 +111,7 @@ int main(int argc, char *argv[]) {
 
                 //전송할 파일크기 + 디지털 서명 길이 
                 printf("\t파일 길이: (%d) || 디지털 서명 길이: (%zu)\n", bytes_send, sign_len);
-                printf("\t총 패킷 길이: %d\n", total_len);
+                printf("\t총 패킷 길이: %d\n\n", total_len);
 
                 //전송용 버퍼 동적 생성
                 unsigned char *send_buf = (unsigned char *)malloc(total_len);
@@ -130,19 +132,16 @@ int main(int argc, char *argv[]) {
                     free(send_buf);
                     break;
                 }
-                printf("\n");
-                printf("----------------------------\n");
                 free(send_buf);
                 cnt++;
             }
             close(fd);
-            printf("\n");
             
             recv(sockfd, &status, sizeof(int), 0);	//서버에서 받았는지 확인 메세지 수신
             if(status){//업로드 성공여부 판단
-                printf("========[업로드 완료]========\n");
+                printf("========[업로드 완료]========\n\n");
             }else{
-                printf("========[업로드 실패]========\n");
+                printf("========[업로드 실패]========\n\n");
             }
         }//end put  
 	}

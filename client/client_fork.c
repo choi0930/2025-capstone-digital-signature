@@ -21,7 +21,7 @@ int print_ls(){
     
         if(WIFEXITED(status)){
             printf("\n");
-            printf("----------------------------\n");
+            printf("-----------------------------\n");
             printf("\n");
             //정상종료
         }else{

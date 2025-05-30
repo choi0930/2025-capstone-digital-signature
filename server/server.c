@@ -8,6 +8,7 @@
 int main() {
     int server_fd, client_fd, fd, file_size;
     struct sockaddr_in server_addr, client_addr;
+	char client_ip[INET_ADDRSTRLEN];
     socklen_t client_len;
 	char buffer[BUFFER_SIZE], command[5], filename[256], file_buf[BUFFER_SIZE], sign_buff[100], full_path[BUFFER_SIZE];
 
@@ -37,7 +38,8 @@ int main() {
     	client_len = sizeof(client_addr);
     	client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_len);
     	if(client_fd == -1){perror("accept"); close(server_fd); exit(1);}
-    	printf("클라이언트 연결됨\n");
+		inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, sizeof(client_ip));
+    	printf("[%s:%d 클라이언트 연결됨]\n", client_ip, PORT);
 
 		cert_get_pubkey(client_fd, &pub_key);
 
@@ -52,7 +54,7 @@ int main() {
 	
 			sscanf(buffer, "%s", command);	//명령어 command에 옮김
 
-			printf("클라이언트로부터 명령 수신: %s\n", command);
+			printf("Client Command: %s\n", command);
 			
 			if(strcmp(command, "exit") == 0){ //exit 명령어
 				printf("클라이언트 연결 종료\n");
@@ -78,7 +80,7 @@ int main() {
 						break;
 				}
 
-				printf("=======[데이터 수신 시작]=======\n");
+				printf("\n=======[데이터 수신 시작]=======\n");
 				printf("\n");
 
 				recv(client_fd, &file_size, sizeof(int), 0);	//파일의 전체 크기 수신
@@ -134,7 +136,7 @@ int main() {
 					}
 		
 					if(check < 0){
-						perror("파일 쓰기 오류 발생: ");
+						perror("파일 쓰기 오류 발생: \n");
 						success = 0;
 						free(recv_buf);
 						break;
@@ -144,13 +146,13 @@ int main() {
 					free(recv_buf);
 
 					printf("\n");
-					printf("-------------------------------\n");
+					printf("--------------------------------\n");
 					printf("\n");
 					cnt++;
 				}
 				
 				if(file_len < 0){
-					perror("파일 수신 오류 발생: ");
+					perror("파일 수신 오류 발생: \n");
 					success = 0;
 				}
 
@@ -166,7 +168,7 @@ int main() {
 				send(client_fd, &success, sizeof(int), 0);		//write 성공 여부를 client 송신
 
 				printf("\n");
-				printf("=======[데이터 수신 끝]=======\n");
+				printf("=======[데이터 수신 끝]=========\n\n");
 			}
     	}	
 		EVP_PKEY_free(pub_key);
