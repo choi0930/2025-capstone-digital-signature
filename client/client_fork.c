@@ -4,13 +4,14 @@ int print_ls(){
     pid_t pid = fork();
     int status;
 
-    printf("----------파일 목록----------\n");
-    printf("\n");
-
     if (pid < 0) {
         perror("fork 실패");
         return 1;
     } else if (pid == 0) {
+        printf("\n");
+        printf("----------파일 목록----------\n");
+        printf("\n");
+
         // 자식 프로세스: ls 실행
         execl("/bin/ls", "ls", "./file", (char *)NULL);
         perror("execl 실패");  // execl 실패했을 때만 실행됨

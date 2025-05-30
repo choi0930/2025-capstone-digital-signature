@@ -55,6 +55,8 @@ int main(int argc, char *argv[]) {
 		    	printf("입력 오류!\n");
 		    	continue;
 	    	}
+            printf("\n");
+
             filename[strcspn(filename, "\n")] = 0;  // 엔터 제거
             
             printf("filename: %s\n", filename);
@@ -130,7 +132,6 @@ int main(int argc, char *argv[]) {
                 }
                 printf("\n");
                 printf("----------------------------\n");
-                printf("\n");
                 free(send_buf);
                 cnt++;
             }
