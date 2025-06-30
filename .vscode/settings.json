@@ -4,7 +4,8 @@
         "encoder.h": "c",
         "decoder.h": "c",
         "err.h": "c",
-        "fcntl.h": "c"
+        "fcntl.h": "c",
+        "typeinfo": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
