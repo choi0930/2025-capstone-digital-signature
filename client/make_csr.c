@@ -1,9 +1,11 @@
+/*
 #include <stdio.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include <openssl/pem.h>
 #include <openssl/evp.h>
-
+*/
+#include "common.h"
 EVP_PKEY *get_key(){ //private key
     FILE *fp = fopen("./client_key/ec_priv_key.pem", "r");
     
@@ -16,7 +18,7 @@ EVP_PKEY *get_key(){ //private key
     fclose(fp);
 
     if(!pkey){
-        fprintf(stderr, "비밀키 로딩 실패");
+        printf("비밀키 로딩 실패");
         return NULL;
     }
 
@@ -27,7 +29,7 @@ X509_REQ *generate_csr(){ //csr 생성
     EVP_PKEY *pkey = get_key();
     
     if(pkey == NULL){
-        fprintf("key -> NULL");
+        printf("key -> NULL\n");
         return NULL;
     }
 
@@ -49,8 +51,9 @@ X509_REQ *generate_csr(){ //csr 생성
 
 }
 
-int send_csr(int sockfd){
-    //csr요청 생성
+int send_csr(int sockfd){//csr요청 생성
+    
+    uint32_t len;
     X509_REQ *req = generate_csr();
 
     //BIO를 이용해 PEM 형식으로 메모리에 쓰기
@@ -66,13 +69,56 @@ int send_csr(int sockfd){
     char *csr_pem;
     long csr_len = BIO_get_mem_data(bio, &csr_pem);
 
-    //fwrite(csr_pem, 1, csr_len, stdout);
+    len = htonl(csr_len);
+    send(sockfd, &len, sizeof(len), 0); //csr요청 길이 전송
+    printf("csr요청 길이: %lu\n", csr_len);
 
-    
+    send(sockfd, csr_pem, csr_len, 0); //csr요청 전송
+    fwrite(csr_pem, 1, csr_len, stdout); //csr출력
 
     BIO_free(bio);
     X509_REQ_free(req);
-    
-
+   
     return 0;
+}
+
+//test
+int main(int argc, char *argv[]){
+     struct stat obj;
+    int sockfd, fd, file_size, status;
+    struct sockaddr_in server_addr;
+    char buffer[BUFFER_SIZE], filename[MAXLINE], buf[BUFFER_SIZE], file_buf[BUFFER_SIZE], full_path[BUFFER_SIZE];
+
+    // 1. 소켓 생성
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if(sockfd == -1){perror("socket"); exit(1);}
+
+    // 2. 서버 주소 설정
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(54321);
+	inet_pton(AF_INET, argv[1], &server_addr.sin_addr);
+
+    // 3. 서버에 연결
+    if(connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1){
+        perror("connect"); close(sockfd); exit(1);}
+    printf("[%s:%d 서버에 연결됨]\n", argv[1], 54321);
+    while(1){
+        memset(full_path, 0x00, BUFFER_SIZE);
+
+        printf("명령어 입력 [request_cert, exit](종료: exit): ");
+        fgets(buffer, BUFFER_SIZE, stdin);
+        buffer[strcspn(buffer, "\n")] = 0;  
+        
+        if(strcmp(buffer, "exit") == 0){ //exit 명령어
+			send(sockfd, buffer, 5, 0);
+			printf("연결 종료\n");
+			break;
+        }else if(strcmp(buffer, "request_cert") == 0){
+            send(sockfd, buffer, 13, 0);
+            
+            send_csr(sockfd);
+            
+        }
+    }
 }

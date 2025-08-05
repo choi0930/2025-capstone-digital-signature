@@ -51,5 +51,37 @@ int main() {
 		inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, sizeof(client_ip));
     	printf("[%s:%d 클라이언트 연결됨]\n", client_ip, PORT);
 
+        while(1){
+            memset(buffer, 0, BUFFER_SIZE);
+            printf("명령 대기 중...\n");
+
+            int recv_len = recv(client_fd, buffer, BUFFER_SIZE, 0); //명령어 이름 수신
+			if(recv_len <= 0){perror("recv 실패"); break;}
+	
+			sscanf(buffer, "%s", command);	//명령어 command에 옮김
+
+			printf("Client Command: %s\n", command);
+
+            if(strcmp(command, "exit") == 0){ //exit 명령어
+				printf("클라이언트 연결 종료\n");
+				close(client_fd);
+				break;
+			}else if(strcmp(command, "request_cert") == 0){ //request cert명령어 인증서 생성 요청
+                uint32_t len_net;
+                char *csr_pem;
+                printf("인증서 생성\n");
+                recv(client_fd, &len_net, sizeof(len_net), 0); //csr요청 길이
+                uint32_t len = ntohl(len_net);
+
+                printf("csr요청 길이: %u\n", len);
+                
+                csr_pem = malloc(len);
+                if(csr_pem == NULL){
+                    perror("csr_pem malloc failed");
+                }
+                recv(client_fd, csr_pem, len, 0); //csr요청 
+                fwrite(csr_pem, 1, len, stdout); //csr출력
+            } 
+        }
     }
 }
