@@ -27,7 +27,8 @@ EVP_PKEY *get_key(){ //private key
 
 X509_REQ *generate_csr(){ //csr 생성
     EVP_PKEY *pkey = get_key();
-    
+    int num = 0;
+    char text_buf[256];
     if(pkey == NULL){
         printf("key -> NULL\n");
         return NULL;
@@ -36,11 +37,26 @@ X509_REQ *generate_csr(){ //csr 생성
     X509_REQ *req = X509_REQ_new();
 
     X509_NAME *name = X509_NAME_new();
-    X509_NAME_add_entry_by_txt(name, "C", MBSTRING_ASC, (unsigned char *)"KR", -1, -1, 0);
-    X509_NAME_add_entry_by_txt(name, "ST", MBSTRING_ASC, (unsigned char *)"Seoul", -1, -1, 0);
-    X509_NAME_add_entry_by_txt(name, "O", MBSTRING_ASC, (unsigned char *)"ClientOrg", -1, -1, 0);
-    X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, (unsigned char *)"client.local", -1, -1, 0);
+    char *arr[] = {"C", "ST", "L", "O", "OU", "CN"};
+    char *q[] = {"Country Name (2 letter code) [AU] : ", "State or Province Name(full name) [Some-state] : ", "Locality Name (eg, city) : "
+    ,"Organization Name (eg, company) : ", "Organizational Unit Name (eg, section) : ", "Common Name (e.g. server FQDN or YOUR name) : "};
+   
+    while(1){
+        memset(text_buf, 0, 256);
 
+        printf("%s", q[num]);
+        
+        fgets(text_buf, sizeof(text_buf), stdin);
+        text_buf[strcspn(text_buf, "\n")] = 0;
+        
+        X509_NAME_add_entry_by_txt(name, arr[num], MBSTRING_ASC, (unsigned char *)text_buf, -1, -1, 0);
+        printf("check field : %d          %s          %s\n", num, arr[num],text_buf);
+        if(num == 5){
+            break;
+        }
+        num++;
+    }
+    
     X509_REQ_set_subject_name(req, name);
 
     X509_REQ_set_pubkey(req, pkey);
@@ -114,11 +130,13 @@ int main(int argc, char *argv[]){
 			send(sockfd, buffer, 5, 0);
 			printf("연결 종료\n");
 			break;
+        /*-----------------쓸수 있는 부분------------------------------------------*/
         }else if(strcmp(buffer, "request_cert") == 0){
             send(sockfd, buffer, 13, 0);
             
             send_csr(sockfd);
             
         }
+        /*------------------------------------------------------------------------*/
     }
-}
+}//test 

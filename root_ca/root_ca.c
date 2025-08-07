@@ -78,9 +78,11 @@ int main() {
                 csr_pem = malloc(len);
                 if(csr_pem == NULL){
                     perror("csr_pem malloc failed");
+                    
                 }
                 recv(client_fd, csr_pem, len, 0); //csr요청 
                 fwrite(csr_pem, 1, len, stdout); //csr출력
+                free(csr_pem);
             } 
         }
     }
