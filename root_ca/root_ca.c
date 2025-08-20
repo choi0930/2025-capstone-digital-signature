@@ -1,23 +1,8 @@
 /* ROOT CA */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <fcntl.h>
-#include <assert.h>
-#include <arpa/inet.h>
-#include <openssl/bn.h>
-#include <openssl/err.h>
-#include <openssl/pem.h>
-#include <openssl/evp.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
+#include "common.h"
 
 #define PORT 54321
-#define BUFFER_SIZE 512
+
 int main() {
 
     int server_fd, client_fd, fd, file_size;
@@ -64,7 +49,7 @@ int main() {
 
             if(strcmp(command, "exit") == 0){ //exit 명령어
 				printf("클라이언트 연결 종료\n");
-				close(client_fd);
+				close(client_fd); 
 				break;
 			}else if(strcmp(command, "request_cert") == 0){ //request cert명령어 인증서 생성 요청
                 uint32_t len_net;
@@ -82,6 +67,8 @@ int main() {
                 }
                 recv(client_fd, csr_pem, len, 0); //csr요청 
                 fwrite(csr_pem, 1, len, stdout); //csr출력
+                sign_cert(csr_pem);
+                
                 free(csr_pem);
             } 
         }

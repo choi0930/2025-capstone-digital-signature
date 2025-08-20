@@ -5,7 +5,8 @@
         "decoder.h": "c",
         "err.h": "c",
         "fcntl.h": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "evp.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
