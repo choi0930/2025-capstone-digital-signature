@@ -67,9 +67,23 @@ int main() {
                 }
                 recv(client_fd, csr_pem, len, 0); //csr요청 
                 fwrite(csr_pem, 1, len, stdout); //csr출력
-                sign_cert(csr_pem);
                 
+                X509 *client_cert = sign_cert(csr_pem);
+
+                //pem형식으로 직렬화
+                BIO *bio = BIO_new(BIO_s_mem());
+                PEM_write_bio_X509(bio, client_cert);
+
+                char *pem_data;
+                long pem_len = BIO_get_mem_data(bio, &pem_data);
+                //인증서 길이 전송
+                uint32_t net_len = htonl((uint32_t)pem_len);
+                send(client_fd, &net_len, sizeof(net_len), 0);
+                //인증서 데이터 전송
+                send(client_fd, pem_data, pem_len, 0);
+
                 free(csr_pem);
+                
             } 
         }
     }

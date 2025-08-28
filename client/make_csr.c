@@ -132,10 +132,31 @@ int main(int argc, char *argv[]){
 			break;
         /*-----------------쓸수 있는 부분------------------------------------------*/
         }else if(strcmp(buffer, "request_cert") == 0){
+            uint32_t net_len;
+
             send(sockfd, buffer, 13, 0);
             
             send_csr(sockfd);
             
+            recv(sockfd, &net_len, sizeof(net_len), MSG_WAITALL); //MSG_WAITALL -> 정확히 요청한 길이만큼 다 받을떄까지 대기 
+            uint32_t pem_len = ntohl(net_len);
+
+            char *pem_buf = malloc(pem_len+1);
+            recv(sockfd, pem_buf, pem_len, MSG_WAITALL);
+            pem_buf[pem_len] = '\0';
+
+            BIO *cbio = BIO_new_mem_buf(pem_buf, pem_len);
+            X509 *cert = PEM_read_bio_X509(cbio, NULL, 0 NULL);
+
+            if(cert){
+                printf("클라이언트: 인증서 수신 성공\n");
+                X509_print_fp(stdout, cert);
+            }
+
+            X509_free(cert);
+            BIO_free(cbio);
+            free(pem_buf);
+
         }
         /*------------------------------------------------------------------------*/
     }
