@@ -146,7 +146,7 @@ int main(int argc, char *argv[]){
             pem_buf[pem_len] = '\0';
 
             BIO *cbio = BIO_new_mem_buf(pem_buf, pem_len);
-            X509 *cert = PEM_read_bio_X509(cbio, NULL, 0 NULL);
+            X509 *cert = PEM_read_bio_X509(cbio, NULL, 0, NULL);
 
             if(cert){
                 printf("클라이언트: 인증서 수신 성공\n");

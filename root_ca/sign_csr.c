@@ -12,7 +12,7 @@ EVP_PKEY *get_key(){ //root_ca private key
     EVP_PKEY *pkey = PEM_read_PrivateKey(fp, NULL, NULL, NULL);
     
     if(!pkey){
-        printf("비밀키 로딩 실패"\n);
+        printf("비밀키 로딩 실패\n");
         EVP_PKEY_free(pkey);
         return NULL;
     }
@@ -29,7 +29,7 @@ X509 *load_certificate(){//open ca cert
         return NULL;
     }
     
-    X509 *cert = PEM_read_X509(fp, NULL, NULL, NULL);
+    X509 *cert = PEM_read_X509(fp_cert, NULL, NULL, NULL);
     
     if(!cert){
         printf("인증서 로딩 실패\n");
@@ -79,7 +79,7 @@ X509 *sign_cert(char* csr_pem){//클라이언트 csr요청 기반으로 인증�
 
     X509 *client_cert = X509_new(); //새 인증서 객체
     ASN1_INTEGER_set(X509_get_serialNumber(client_cert), 1); //일렬번호 
-    X509_gmtime_adj(X509_get_notBfter(client_cert), 0); //유효기간 설정
+    X509_gmtime_adj(X509_get_notBefore(client_cert), 0); //유효기간 설정
     X509_gmtime_adj(X509_get_notAfter(client_cert), 31516000L); //1년
 
     X509_set_issuer_name(client_cert, X509_get_subject_name(ca_cert));//issuer 인증서 발급자 설정
