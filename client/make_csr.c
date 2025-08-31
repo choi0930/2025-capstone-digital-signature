@@ -98,6 +98,19 @@ int send_csr(int sockfd){//csr요청 생성
     return 0;
 }
 
+int *save_cert(X509 *cert){//인증서 저장
+    FILE *fp = fopen("./client_key/client_cert.pem", "w");    
+    if(fp){
+        PEM_write_X509(fp, cert);
+        fclose(fp);
+        X509_free(cert);
+        printf("인증서 저장 완료\n");
+    }else{
+        perror("fopen실패\n");
+        X509_free(cert);
+    }
+}
+
 //test
 int main(int argc, char *argv[]){
      struct stat obj;
@@ -119,6 +132,13 @@ int main(int argc, char *argv[]){
     if(connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) == -1){
         perror("connect"); close(sockfd); exit(1);}
     printf("[%s:%d 서버에 연결됨]\n", argv[1], 54321);
+
+    /*-------------------------ca의 인증서를 받아 ca의 공개키 추출필요----------------------------------*///사용해야하는 부분
+    EVP_PKEY *ca_pub_key = NULL;
+    cert_get_pubkey(sockfd, &ca_pub_key);
+    printf("ca인증서 공개키 추출 완료\n");
+    /*---------------------------------------------------------------------------------------------*/
+
     while(1){
         memset(full_path, 0x00, BUFFER_SIZE);
 
@@ -153,7 +173,16 @@ int main(int argc, char *argv[]){
                 X509_print_fp(stdout, cert);
             }
 
-            X509_free(cert);
+            if(X509_verify(cert, ca_pub_key) == 1){
+                printf("검증 성공 : CA가 서명한 인증서\n");
+            }else{
+                printf("검증 실패\n");
+                X509_free(cert);
+            }
+
+            save_cert(cert);
+
+            X509_free(cert);//
             BIO_free(cbio);
             free(pem_buf);
 
@@ -161,3 +190,4 @@ int main(int argc, char *argv[]){
         /*------------------------------------------------------------------------*/
     }
 }//test 
+

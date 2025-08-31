@@ -17,3 +17,4 @@
 
 #define BUFFER_SIZE 512
 X509 *sign_cert(char* csr_pem);
+int send_cert(int sockfd);

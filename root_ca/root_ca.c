@@ -36,6 +36,12 @@ int main() {
 		inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, sizeof(client_ip));
     	printf("[%s:%d 클라이언트 연결됨]\n", client_ip, PORT);
 
+         //인증서 전송
+        printf("----------------------------\n");
+        send_cert(client_fd); 
+        printf("----------------------------\n");
+        printf("root_ca인증서 전송 완료\n");
+
         while(1){
             memset(buffer, 0, BUFFER_SIZE);
             printf("명령 대기 중...\n");
