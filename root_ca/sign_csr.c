@@ -40,7 +40,30 @@ X509 *load_certificate(){//open ca cert
     return cert;
 }
 
+long read_serial(){
+    FILE *fp = fopen("./ca_info/serial.txt", "r");
+    long serial = 1;
+    if(fp){
+        if(fscanf(fp, "%ld", &serial) != 1){
+            serial = 1;
+        }
+        fclose(fp);
+    }
+    
+    printf("serial = %ld\n", serial);
 
+    return serial;
+}
+
+void write_serial(long serial){
+    FILE *fp = fopen("./ca_info/serial.txt", "w");
+    if(!fp){
+        perror("serial파일 열기 실패\n");
+        return;
+    }
+    fprintf(fp, "%ld\n", serial);
+    fclose(fp);
+}
 
 X509 *sign_cert(char* csr_pem){//클라이언트 csr요청 기반으로 인증서 생성
     X509 *ca_cert = load_certificate(); //root ca의 인증서
@@ -78,7 +101,13 @@ X509 *sign_cert(char* csr_pem){//클라이언트 csr요청 기반으로 인증�
     //---------------------------------------------------------------
 
     X509 *client_cert = X509_new(); //새 인증서 객체
-    ASN1_INTEGER_set(X509_get_serialNumber(client_cert), 1); //일렬번호 
+
+    long serial = read_serial(); //일렬번호 불러오기
+
+    ASN1_INTEGER_set(X509_get_serialNumber(client_cert), serial); //일렬번호 설정
+
+    write_serial(serial+1);//다음 인증서 발급에 사용할 일렬번호 저장
+
     X509_gmtime_adj(X509_get_notBefore(client_cert), 0); //유효기간 설정
     X509_gmtime_adj(X509_get_notAfter(client_cert), 31516000L); //1년
 

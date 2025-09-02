@@ -1,7 +1,7 @@
 .SUFFIXES : .c .o
 CFLAGS = -g -lcrypto -lssl
 
-OBJS = root_ca.o sign_csr.o
+OBJS = root_ca.o sign_csr.o send_certificate.o
 
 SRCS = $(OBJS:.o=.c)
 HFILES = common.h

@@ -1,11 +1,5 @@
-/*
-#include <stdio.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
-#include <openssl/pem.h>
-#include <openssl/evp.h>
-*/
 #include "common.h"
+
 EVP_PKEY *get_key(){ //private key
     FILE *fp = fopen("./client_key/ec_priv_key.pem", "r");
     
@@ -98,16 +92,18 @@ int send_csr(int sockfd){//csr요청 생성
     return 0;
 }
 
-int *save_cert(X509 *cert){//인증서 저장
+int save_cert(X509 *cert){//인증서 저장
     FILE *fp = fopen("./client_key/client_cert.pem", "w");    
     if(fp){
         PEM_write_X509(fp, cert);
         fclose(fp);
         X509_free(cert);
         printf("인증서 저장 완료\n");
+      
     }else{
         perror("fopen실패\n");
         X509_free(cert);
+        
     }
 }
 
@@ -162,9 +158,10 @@ int main(int argc, char *argv[]){
             uint32_t pem_len = ntohl(net_len);
 
             char *pem_buf = malloc(pem_len+1);
-            recv(sockfd, pem_buf, pem_len, MSG_WAITALL);
+            recv(sockfd, pem_buf, pem_len, MSG_WAITALL);//인증서 정보 받아옴
             pem_buf[pem_len] = '\0';
 
+            //pem -> X509구조체형식
             BIO *cbio = BIO_new_mem_buf(pem_buf, pem_len);
             X509 *cert = PEM_read_bio_X509(cbio, NULL, 0, NULL);
 
@@ -173,6 +170,7 @@ int main(int argc, char *argv[]){
                 X509_print_fp(stdout, cert);
             }
 
+            /*연결한 CA에서 발급한 인증서가 맞는지 검증*/
             if(X509_verify(cert, ca_pub_key) == 1){
                 printf("검증 성공 : CA가 서명한 인증서\n");
             }else{
@@ -182,7 +180,6 @@ int main(int argc, char *argv[]){
 
             save_cert(cert);
 
-            X509_free(cert);//
             BIO_free(cbio);
             free(pem_buf);
 
