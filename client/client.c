@@ -41,8 +41,6 @@ int main(int argc, char *argv[]) {
         sockfd = client_to_ca(sockfd);
     }
 
-    /*--------------------------------------------------------------------------*/
-   
     //종료
     close(sockfd);
     return 0;
