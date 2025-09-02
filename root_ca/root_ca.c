@@ -72,7 +72,7 @@ int main() {
                     
                 }
                 recv(client_fd, csr_pem, len, 0); //csr요청 
-                fwrite(csr_pem, 1, len, stdout); //csr출력
+                //fwrite(csr_pem, 1, len, stdout); //csr출력
                 
                 X509 *client_cert = sign_cert(csr_pem);
 
