@@ -43,6 +43,13 @@ X509_REQ *generate_csr(){ //csr 생성
         fgets(text_buf, sizeof(text_buf), stdin);
         text_buf[strcspn(text_buf, "\n")] = 0;
         
+        if(num == 0){
+            if(strlen(text_buf) > 2){
+                printf("Code is long");
+                continue;
+            }
+        }
+        
         X509_NAME_add_entry_by_txt(name, arr[num], MBSTRING_ASC, (unsigned char *)text_buf, -1, -1, 0);
         //printf("check field : %d          %s          %s\n", num, arr[num],text_buf);
         if(num == 5){
