@@ -3,7 +3,7 @@
 int send_cert(int sockfd){
     X509 *cert = NULL;
 
-    FILE *fp = fopen("./client_key/ecdsa-cert.pem", "r");
+    FILE *fp = fopen("./client_key/client_cert.pem", "r");
     if(!fp){
         perror("인증서 open 실패\n");
         return -14;
