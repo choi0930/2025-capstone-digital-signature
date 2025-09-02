@@ -45,7 +45,7 @@ X509_REQ *generate_csr(){ //csr 생성
         
         if(num == 0){
             if(strlen(text_buf) > 2){
-                printf("Code is long");
+                printf("Code is long\n");
                 continue;
             }
         }
