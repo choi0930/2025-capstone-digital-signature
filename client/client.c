@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
         sockfd = client_to_server(sockfd);
     }else{
         //root_ca
-
+        sockfd = client_to_ca(sockfd);
     }
 
     /*--------------------------------------------------------------------------*/

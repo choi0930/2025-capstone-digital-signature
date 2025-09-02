@@ -107,7 +107,8 @@ int save_cert(X509 *cert){//인증서 저장
     }
 }
 
-//test
+//test 
+/*
 int main(int argc, char *argv[]){
      struct stat obj;
     int sockfd, fd, file_size, status;
@@ -129,11 +130,11 @@ int main(int argc, char *argv[]){
         perror("connect"); close(sockfd); exit(1);}
     printf("[%s:%d 서버에 연결됨]\n", argv[1], 54321);
 
-    /*-------------------------ca의 인증서를 받아 ca의 공개키 추출필요----------------------------------*///사용해야하는 부분
+ 
     EVP_PKEY *ca_pub_key = NULL;
     cert_get_pubkey(sockfd, &ca_pub_key);
     printf("ca인증서 공개키 추출 완료\n");
-    /*---------------------------------------------------------------------------------------------*/
+ 
 
     while(1){
         memset(full_path, 0x00, BUFFER_SIZE);
@@ -146,7 +147,7 @@ int main(int argc, char *argv[]){
 			send(sockfd, buffer, 5, 0);
 			printf("연결 종료\n");
 			break;
-        /*-----------------쓸수 있는 부분------------------------------------------*/
+        
         }else if(strcmp(buffer, "request_cert") == 0){
             uint32_t net_len;
 
@@ -170,7 +171,7 @@ int main(int argc, char *argv[]){
                 X509_print_fp(stdout, cert);
             }
 
-            /*연결한 CA에서 발급한 인증서가 맞는지 검증*/
+            
             if(X509_verify(cert, ca_pub_key) == 1){
                 printf("검증 성공 : CA가 서명한 인증서\n");
             }else{
@@ -184,7 +185,8 @@ int main(int argc, char *argv[]){
             free(pem_buf);
 
         }
-        /*------------------------------------------------------------------------*/
+       
     }
+   
 }//test 
-
+*/

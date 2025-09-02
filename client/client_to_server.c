@@ -1,7 +1,6 @@
 #include "common.h"
  
-
- int client_to_server(int sockfd){
+int client_to_server(int sockfd){
     struct stat obj;
     int fd, file_size, status;
     char buffer[BUFFER_SIZE], filename[MAXLINE], buf[BUFFER_SIZE], file_buf[BUFFER_SIZE], full_path[BUFFER_SIZE];
