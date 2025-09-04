@@ -30,7 +30,7 @@ int client_to_server(int sockfd){
             unsigned char *sign;
             size_t sign_len;
             int bytes_send, total_len = 0;
-
+            
             print_ls();
            
             printf("업로드 할 파일명을 입력해주세요 :");
