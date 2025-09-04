@@ -43,12 +43,13 @@ int main(int argc, char *argv[]) {
         if(!strcmp(port_num, "12345")){
             //server
             sockfd = client_to_server(sockfd);
-        }else{
+        }else if(!strcmp(port_num, "54321")){
             //root_ca
             sockfd = client_to_ca(sockfd);
-        }
+
     }
     //종료
     close(sockfd);
     return 0;
+    }
 }
