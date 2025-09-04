@@ -130,6 +130,7 @@ X509 *sign_cert(char* csr_pem){//클라이언트 csr요청 기반으로 인증�
 
     EVP_PKEY_free(ca_pkey);
     X509_REQ_free(req);
-    X509_print_fp(stdout, client_cert);
+    printf("인증서 발급\n");
+    //X509_print_fp(stdout, client_cert);
     return client_cert;    
 }
