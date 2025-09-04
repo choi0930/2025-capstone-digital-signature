@@ -42,7 +42,6 @@ int main() {
     	printf("[%s:%d 클라이언트 연결됨]\n", client_ip, PORT);
 
 		cert_get_pubkey(client_fd, &pub_key);
-
 		//EVP_PKEY *pub_key = recv_pub_key(client_fd);
 		
 		while(1){
