@@ -46,10 +46,8 @@ int main(int argc, char *argv[]) {
         }else if(!strcmp(port_num, "54321")){
             //root_ca
             sockfd = client_to_ca(sockfd);
-
-    }
+        }
     //종료
     close(sockfd);
-    return 0;
     }
 }
