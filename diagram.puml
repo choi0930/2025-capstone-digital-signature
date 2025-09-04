@@ -1,0 +1,35 @@
+@startuml
+
+skinparam defaultFontSize 20
+skinparam participantFontSize 30
+
+participant CA
+participant Client
+participant Server
+hide footbox
+
+== Server, CA는 Daemon Process ==
+
+group Client connect
+    group connect to CA
+        CA --> Client: CA 인증서 송신
+        Client -> CA: CSR 제출
+        CA -> CA: CSR 검증 / 인증서 발급
+        CA --> Client: Client 인증서 송신
+        Client -> Client: 인증서 검증 / 저장
+    else exit 입력 시
+        Client -> Client: Client 종료
+        destroy Client
+    end
+    group connect to Server
+        Client -> Server: Client 인증서 송신
+        Client -> Server: ECDSA 서명된 파일 송신
+        Server -> Server: 인증서 공개키로 서명 검증
+        Server -> Server: 무결성 확인 및 파일 저장
+    else exit 입력 시
+        Client -> Client: Client 종료
+        destroy Client
+    end
+end
+
+@enduml
