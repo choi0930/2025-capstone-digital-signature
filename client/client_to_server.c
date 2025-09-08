@@ -14,7 +14,7 @@ int client_to_server(int sockfd){
     while(1){
         memset(full_path, 0x00, BUFFER_SIZE);
 
-        printf("명령어 입력 [put, file_ls, exit](종료: exit): ");
+        printf("명령어 입력 [put, pull, file_ls, exit](종료: exit): ");
         fgets(buffer, BUFFER_SIZE, stdin);
         buffer[strcspn(buffer, "\n")] = 0;  
 
@@ -126,7 +126,10 @@ int client_to_server(int sockfd){
             }else{
                 printf("========[업로드 실패]========\n\n");
             }
-        }//end put  
+        }//end put
+        else if(strcmp(buffer, "pull") == 0){ //pull
+
+        }//end pull
 	}
     
     return sockfd;
