@@ -18,7 +18,7 @@ group Client connect
         CA --> Client: Client 인증서 송신
         Client -> Client: 인증서 검증 / 저장
     else exit 입력 시
-        Client -> Client: Client 종료
+        Client -> Client: CA 연결 종료
         destroy Client
     end
     group connect to Server
@@ -27,7 +27,7 @@ group Client connect
         Server -> Server: 인증서 공개키로 서명 검증
         Server -> Server: 무결성 확인 및 파일 저장
     else exit 입력 시
-        Client -> Client: Client 종료
+        Client -> Client: Server 연결 종료
         destroy Client
     end
 end

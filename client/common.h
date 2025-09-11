@@ -21,8 +21,9 @@
 #define MdName EVP_sha256()
 
 int print_ls();
+int put_file(int sockfd);
 int send_cert(int sockfd);
-int client_to_server(int sockfd);
+int clnt_to_serv(int sockfd);
 int client_to_ca(int sockfd);
 int ecdsa_sign(char *file_buf, int len, unsigned char **sign, size_t *sign_len);
 int cert_get_pubkey(int sockfd, EVP_PKEY **pkey);

@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     
         if(!strcmp(port_num, "12345")){
             //server
-            sockfd = client_to_server(sockfd);
+            sockfd = clnt_to_serv(sockfd);
         }else if(!strcmp(port_num, "54321")){
             //root_ca
             sockfd = client_to_ca(sockfd);

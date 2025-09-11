@@ -28,6 +28,5 @@ int print_ls(){
             printf("ls명령 자식프로세스 비정상 종료\n");
         }
     }
-
     return 0;
 }
