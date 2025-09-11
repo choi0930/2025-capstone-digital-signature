@@ -128,7 +128,23 @@ int client_to_server(int sockfd){
             }
         }//end put
         else if(strcmp(buffer, "pull") == 0){ //pull
-
+            memset(filename, 0x00, MAXLINE);
+            char test[512];
+            send(sockfd, buffer, 5, 0);
+            int n = 0;
+            while((n = recv(sockfd, test, sizeof(test)-1, 0)) > 0){
+                test[n] = '\n';
+                printf("%s\n", test);
+            }
+/*
+            while(1){
+                recv(sockfd, filename, 256, 0);
+               
+                printf("파일이름: %s\n", filename);
+                if(strcmp(filename, "END"))
+                    break;
+            }
+*/
         }//end pull
 	}
     

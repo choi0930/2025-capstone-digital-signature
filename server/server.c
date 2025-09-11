@@ -1,6 +1,7 @@
 //server
 
 #include "common.h"
+#include "dirent.h"
 
 #define PORT 12345
 #define BUFFER_SIZE 512
@@ -169,6 +170,35 @@ int main() {
 				printf("\n");
 				printf("=======[데이터 수신 끝]=========\n\n");
 			}
+			else if(strcmp(command, "pull") == 0){
+				memset(filename, 0x00, 256);
+				DIR *d;
+				struct dirent *dir;
+				struct stat file_info;
+				int count = 0;
+				
+				d = opendir("./file");
+				if(d){
+					while((dir = readdir(d)) != NULL){
+						char full_path[256];
+						//printf("%s\n", dir -> d_name);
+						snprintf(full_path, 263, "./file/%s", dir->d_name);
+						lstat(full_path, &file_info);
+						
+						if(S_ISREG(file_info.st_mode)){ //파일만 분류
+							printf("파일이름: %s\n", dir->d_name);
+							
+							int len = snprintf(filename, sizeof(filename), "%s", dir->d_name);
+							printf("%d",len);
+							printf("%s",filename);
+							//send(client_fd, filename, len, 0);
+						}
+						
+					}
+					send(client_fd, "END\n", 256, 0);
+					closedir(d);
+				}
+			}	//pull명령어
     	}	
 		EVP_PKEY_free(pub_key);
 	}
