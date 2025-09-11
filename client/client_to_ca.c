@@ -1,5 +1,5 @@
 #include "common.h"
- 
+
 int client_to_ca(int sockfd){
     
     char buffer[BUFFER_SIZE];
@@ -58,7 +58,6 @@ int client_to_ca(int sockfd){
             free(pem_buf);
 
         }
-       
     }
     return sockfd;
 }

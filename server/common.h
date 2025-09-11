@@ -16,11 +16,10 @@
 #include <openssl/x509v3.h>
 
 #define MdName EVP_sha256()
-
+#define BUFFER_SIZE 512
 int cert_get_pubkey(int client_fd, EVP_PKEY **pkey);
-
-
 int ecdsa_verify(char *file_buf, int len, unsigned char *sign, size_t sign_len, EVP_PKEY *pkey);
+int clnt_put(int client_fd, char *buffer, char *command, EVP_PKEY *pub_key);
 
 typedef struct {
     int sign_len;

@@ -2,7 +2,7 @@
 CFLAGS = -g -lcrypto -lssl
 
 
-OBJS = server.o ecdsaVerify.o get_pubkey.o 
+OBJS = server.o serv_cmd.o ecdsaVerify.o get_pubkey.o
 
 SRCS = $(OBJS:.o=.c)
 HFILES = common.h
