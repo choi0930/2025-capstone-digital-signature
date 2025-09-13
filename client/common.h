@@ -22,10 +22,12 @@
 
 int print_ls();
 int put_file(int sockfd);
+int get_file(int sockfd, EVP_PKEY *pub_key);
 int send_cert(int sockfd);
 int clnt_to_serv(int sockfd);
 int client_to_ca(int sockfd);
 int ecdsa_sign(char *file_buf, int len, unsigned char **sign, size_t *sign_len);
+int ecdsa_verify(char *file_buf, int len, unsigned char *sign, size_t sign_len, EVP_PKEY *pkey);
 int cert_get_pubkey(int sockfd, EVP_PKEY **pkey);
 int send_csr(int sockfd);
 int save_cert(X509 *cert);

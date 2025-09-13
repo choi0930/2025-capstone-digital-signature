@@ -109,6 +109,126 @@ int put_file(int sockfd){
     }
 }
 
-int get_file(){
+int get_file(int sockfd, EVP_PKEY *pub_key){
+    int fd, check, check_status, file_size, bytes_left, sign_len, total_len, file_len= 0;
+    int success = 1;
+    char filename[MAXLINE], full_path[BUFFER_SIZE], buf[BUFFER_SIZE], file_buf[BUFFER_SIZE], sign_buf[100];
     
+    memset(full_path, 0x00, BUFFER_SIZE);
+
+    printf("다운 할 파일명을 입력해주세요 :");
+    if(fgets(filename, sizeof(filename), stdin) == NULL){
+        printf("입력 오류!\n");
+        return -1;;
+    }
+    printf("\n");
+
+    filename[strcspn(filename, "\n")] = 0;  // 엔터 제거
+
+    printf("File_name: %s\n", filename);//확인용
+    if(strlen(filename) == 0){
+        printf("파일명이 비어있습니다. 다시 입력해주세요.\n");
+        return -1;
+    }
+    strcpy(buf, "get ");    //명령어
+    strcat(buf, filename);  //명령어 + 파일명명
+    
+    //printf("명령어 조합 완료: %s\n", buf);
+    //printf("명령어 전송 시작\n");
+    send(sockfd, buf, BUFFER_SIZE, 0);//명령어 전송
+
+    recv(sockfd, &check_status, sizeof(int), 0); //서버에 입력한 파일이 있는지 확인
+
+    if(check_status == 0){
+        printf("입력하신 파일이 없습니다\n");
+        return -1;
+    }
+
+    while(1){//파일 오픈
+        snprintf(full_path, sizeof(full_path), "./file/%s", filename);
+        fd = open(full_path, O_CREAT | O_EXCL | O_WRONLY, 0666);
+        if(fd == -1){
+            sprintf(filename + strlen(filename), "_1");}
+        else
+            break;
+    }
+
+    recv(sockfd, &file_size, sizeof(int), 0);	//파일의 전체 크기 수신
+    bytes_left = file_size;
+
+    while(bytes_left >0){
+        Length_Info info;
+        memset(file_buf, 0x00, BUFFER_SIZE);
+        memset(sign_buf, 0x00, 100);
+        sign_len = 0;
+        total_len = 0;
+
+        recv(sockfd, &info, sizeof(Length_Info), 0); //파일 길이, 서명길이, 총길이 데이터를 담은 구조체 recv
+
+        file_len = info.file_len;
+        sign_len = info.sign_len;
+        total_len = info.total_len;
+
+        //printf("\t파일 길이: (%d) || 디지털 서명 길이: (%zu)\n", file_len, sign_len);
+        //printf("\t총 패킷 길이: %d\n", total_len);
+
+        //수신용 버퍼 동적 생성
+        unsigned char *recv_buf = (unsigned char *)malloc(total_len);
+        if(recv_buf == NULL) {
+            perror("malloc failed");
+            success =0;
+            break;
+        }
+
+        int recv_bytes = recv(sockfd, recv_buf, total_len, 0); //자른 파일 데이터 + 데이터에 대한 서명 값 recv
+        if(recv_bytes != total_len){
+            perror("send failed");
+            success =0;
+            break;
+        }
+
+        memcpy(file_buf, recv_buf, file_len);
+        memcpy(sign_buf, recv_buf + file_len, sign_len);
+
+        printf("\n");
+        printf("[서명 검증]--->");
+
+        if(ecdsa_verify(file_buf, file_len, sign_buf, sign_len, pub_key)){ //서명 검증
+            printf("\tverify success\n");
+            check = write(fd, file_buf, file_len);	//검증 성공시 파일 데이터 write
+        }else{
+            printf("\tverify fail\n");
+            success = 0;
+            free(recv_buf);
+            break;
+        }
+
+         if(check < 0){
+            perror("파일 쓰기 오류 발생: \n");
+            success = 0;
+            free(recv_buf);
+            break;
+        }
+
+        bytes_left -= file_len; //수신한 파일의 크기에서 recv한 데이터 크기만큼 빼서 남은 파일 크기 계산
+        free(recv_buf);
+    }
+
+    if(file_len < 0){
+        perror("파일 수신 오류 발생: \n");
+        success = 0;
+    }
+
+    close(fd);
+    
+    if(success){
+        printf("%s save success\n", filename);
+    }else{
+        printf("%s save fail\n", filename);
+        remove(filename); //검증이 실패했거나 파일 write, 수신에 오류가 발생시 파일 삭제
+    }
+
+    send(sockfd, &success, sizeof(int), 0);		//write 성공 여부를 client 송신
+
+    return 1;
 }

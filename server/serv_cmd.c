@@ -4,7 +4,7 @@ int clnt_put(int client_fd, char *buffer, char *command, EVP_PKEY *pub_key){
     int check, fd, file_len, bytes_left, file_size, total_len= 0;
     int success = 1;
     size_t sign_len;
-    char file_data[BUFFER_SIZE], filename[256], file_buf[BUFFER_SIZE], sign_buff[100], full_path[BUFFER_SIZE];
+    char file_data[BUFFER_SIZE], filename[MAXLINE], file_buf[BUFFER_SIZE], sign_buff[100], full_path[BUFFER_SIZE];
 
     memset(file_data, 0x00, BUFFER_SIZE);
 
@@ -110,3 +110,111 @@ int clnt_put(int client_fd, char *buffer, char *command, EVP_PKEY *pub_key){
     printf("\n");
     printf("=======[데이터 수신 끝]=========\n\n");
 }
+
+int clnt_get(int client_fd, char *buffer, char  *command){
+    struct stat obj;
+    size_t sign_len;
+    int fd, status, file_size, bytes_send, total_len;
+    char file_data[BUFFER_SIZE], filename[MAXLINE], full_path[BUFFER_SIZE], file_buf[BUFFER_SIZE];
+    unsigned char *sign;
+    total_len, bytes_send, status = 0;
+
+    memset(file_data, 0x00, BUFFER_SIZE);
+    memset(full_path, 0x00, BUFFER_SIZE);
+    
+    sscanf(buffer + strlen(command), "%s", filename); //command 이후 filename에 포인팅
+    printf("filename: %s\n", filename); //확인용 나중에 주석처리
+
+    snprintf(full_path, sizeof(full_path), "./file/%s", filename);
+    fd = open(full_path, O_RDONLY);
+
+    if(fd == -1){//파일 존재 여부
+        send(client_fd, &status, sizeof(int), 0); //요구한 파일이 없을 경우
+        return -1;
+    }else{
+        status = 1;
+        send(client_fd, &status, sizeof(int), 0);
+    }
+
+    stat(full_path, &obj);   //파일 크기
+    file_size = obj.st_size;	//stat 명령를 통해 파일 사이즈 받기
+    printf("File_size: %d byte\n\n", file_size); //확인용
+
+    send(client_fd, &file_size, sizeof(int), 0); //파일 크기 전송
+
+    while((bytes_send = read(fd, file_buf, BUFFER_SIZE)) >0){
+        Length_Info info; //파일 길이, 서명길이, 총길이 데이터를 저장할 구조체 선언
+        sign = NULL;
+        sign_len = 0;
+
+        ecdsa_sign(file_buf, bytes_send, &sign, &sign_len); //서명 동작
+
+        total_len = (int)sign_len + bytes_send;
+
+        info.sign_len = (int)sign_len;
+        info.file_len = bytes_send;
+        info.total_len = total_len;
+
+        send(client_fd, &info, sizeof(Length_Info), 0); //파일 길이, 서명길이, 총길이 데이터를 담은 구조체 send
+
+        unsigned char *send_buf = (unsigned char *)malloc(total_len);
+        if(send_buf == NULL) {
+            perror("malloc failed");
+            status = 0;
+            break;
+        }
+
+        memcpy(send_buf, file_buf, bytes_send);
+        memcpy(send_buf+bytes_send, sign, sign_len);
+        
+        int sent_bytes = send(client_fd, send_buf, total_len, 0);
+        if(sent_bytes != total_len){
+            perror("send failed");
+            status = 0;
+            free(send_buf);
+            break;
+        }
+        free(send_buf);
+    }
+    close(fd);
+
+    recv(client_fd, &status, sizeof(int), 0);	//서버에서 받았는지 확인 메세지 수신
+    if(status){//업로드 성공여부 판단
+        printf("========[업로드 완료]========\n\n");
+    }else{
+        printf("========[업로드 실패]========\n\n");
+    }
+}
+/*/
+int ls(){
+ char filename[MAXLINE];
+	DIR *d;
+	struct dirent *dir;
+	struct stat file_info;
+	int count = 0;
+				
+    memset(filename, 0x00, 256);
+	d = opendir("./file");
+	if(d){
+	    while((dir = readdir(d)) != NULL){
+			char full_path[256];
+			//printf("%s\n", dir -> d_name);
+			snprintf(full_path, MAXLINE+10, "./file/%s", dir->d_name);
+			lstat(full_path, &file_info);
+						
+			if(S_ISREG(file_info.st_mode)){ //파일만 분류
+				printf("파일이름: %s\n", dir->d_name);
+							
+				int len = snprintf(filename, sizeof(filename), "%s", dir->d_name);
+				printf("%d",len);
+				printf("%s",filename);
+				//send(client_fd, filename, len, 0);
+			}
+						
+		}
+	    send(client_fd, "END\n", 256, 0);
+		closedir(d);
+	}
+
+}
+    */
