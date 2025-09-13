@@ -21,6 +21,7 @@
 #define MdName EVP_sha256()
 
 int print_ls();
+int ls(int sockfd, char *buffer);
 int put_file(int sockfd);
 int get_file(int sockfd, EVP_PKEY *pub_key);
 int send_cert(int sockfd);
