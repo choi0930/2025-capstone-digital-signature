@@ -2,12 +2,13 @@
 
 int clnt_to_serv(int sockfd){
     char buffer[BUFFER_SIZE];
+    EVP_PKEY *pub_key = NULL;
 
      //인증서 전송
     printf("----------------------------\n");
     send_cert(sockfd);
     printf("----------------------------\n");
-
+    cert_get_pubkey(sockfd, &pub_key);
     // 4. 데이터 송수신
     while(1){
         printf("명령어 입력 [put, get, file_ls, exit](종료: exit): ");
@@ -25,7 +26,9 @@ int clnt_to_serv(int sockfd){
                 continue;
             }
         }else if(strcmp(buffer, "get") == 0){ //put 명령어
-            
+            if(get_file(sockfd, pub_key) == -1){
+                continue;
+            }
         }
 	}
     return sockfd;

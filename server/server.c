@@ -41,7 +41,7 @@ int main() {
 
 		cert_get_pubkey(client_fd, &pub_key);
 		//EVP_PKEY *pub_key = recv_pub_key(client_fd);
-		
+		send_cert(client_fd);
 		while(1){
 			memset(buffer, 0, BUFFER_SIZE);
 			printf("명령 대기 중...\n");
@@ -60,7 +60,10 @@ int main() {
 			}
 			else if(strcmp(command, "put") == 0){	//put 명령어
 				clnt_put(client_fd, buffer, command, pub_key);
-			}
+
+			}else if(strcmp(command, "get") == 0){	//get 명령어
+				clnt_get(client_fd, buffer, command);
+				}
     	}
 		EVP_PKEY_free(pub_key);
 	}
