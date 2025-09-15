@@ -63,7 +63,9 @@ int main() {
 
 			}else if(strcmp(command, "get") == 0){	//get 명령어
 				clnt_get(client_fd, buffer, command);
-				}
+			}else if(strcmp(command, "ls") == 0){
+				ls(client_fd);
+			}
     	}
 		EVP_PKEY_free(pub_key);
 	}

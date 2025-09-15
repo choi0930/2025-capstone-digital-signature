@@ -11,7 +11,7 @@ int clnt_to_serv(int sockfd){
     cert_get_pubkey(sockfd, &pub_key);
     // 4. 데이터 송수신
     while(1){
-        printf("명령어 입력 [put, get, file_ls, exit](종료: exit): ");
+        printf("명령어 입력 [put, get, client_ls, ls, exit](종료: exit): ");
         fgets(buffer, BUFFER_SIZE, stdin);
         buffer[strcspn(buffer, "\n")] = 0;
 
@@ -19,7 +19,7 @@ int clnt_to_serv(int sockfd){
 			send(sockfd, buffer, 5, 0);
 			printf("연결 종료\n");
 			break;
-		}else if(strcmp(buffer, "file_ls") == 0){ //file_ls명령어
+		}else if(strcmp(buffer, "client_ls") == 0){ //file_ls명령어
             print_ls();
         }else if(strcmp(buffer, "put") == 0){ //put 명령어
             if(put_file(sockfd) == -1){
@@ -29,6 +29,8 @@ int clnt_to_serv(int sockfd){
             if(get_file(sockfd, pub_key) == -1){
                 continue;
             }
+        }else if(strcmp(buffer, "ls") == 0){
+            ls(sockfd, buffer);
         }
 	}
     return sockfd;

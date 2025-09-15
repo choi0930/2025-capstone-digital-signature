@@ -232,3 +232,25 @@ int get_file(int sockfd, EVP_PKEY *pub_key){
 
     return 1;
 }
+
+int ls(int sockfd, char *buffer){
+    char filename[MAXLINE];
+    int status = 0;
+
+    send(sockfd, buffer, BUFFER_SIZE, 0);
+
+    while(1){
+        
+        recv(sockfd, &status, sizeof(int), 0);
+        if(!status){ //ls로 출력할 파일명이 더 없으면 while문 break
+            break;
+
+        }
+        ssize_t n = recv(sockfd, filename, sizeof(filename), 0);
+        filename[n] = '\0';
+        printf("%s\n", filename);
+
+    }
+    
+    return 0;
+}

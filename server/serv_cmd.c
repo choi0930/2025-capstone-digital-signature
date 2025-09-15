@@ -185,36 +185,45 @@ int clnt_get(int client_fd, char *buffer, char  *command){
         printf("========[업로드 실패]========\n\n");
     }
 }
-/*/
-int ls(){
- char filename[MAXLINE];
+
+int ls(int client_fd){
+    char filename[MAXLINE], full_path[MAXLINE];
 	DIR *d;
 	struct dirent *dir;
 	struct stat file_info;
-	int count = 0;
-				
-    memset(filename, 0x00, 256);
+	int status = 0;
+    
 	d = opendir("./file");
 	if(d){
 	    while((dir = readdir(d)) != NULL){
-			char full_path[256];
+            memset(filename, 0x00, MAXLINE);
+			memset(full_path, 0x00, MAXLINE);
+
 			//printf("%s\n", dir -> d_name);
 			snprintf(full_path, MAXLINE+10, "./file/%s", dir->d_name);
 			lstat(full_path, &file_info);
 						
 			if(S_ISREG(file_info.st_mode)){ //파일만 분류
+                status = 1;
+                send(client_fd, &status, sizeof(int), 0); //파일명 있는지 체크여부 보내줌
+
+                size_t max_name = sizeof(filename)-2;
+                size_t namelen = strnlen(dir->d_name, max_name);
+
 				printf("파일이름: %s\n", dir->d_name);
 							
-				int len = snprintf(filename, sizeof(filename), "%s", dir->d_name);
-				printf("%d",len);
-				printf("%s",filename);
-				//send(client_fd, filename, len, 0);
+				int len = snprintf(filename, sizeof(filename), "%.*s\r", (int)namelen, dir->d_name);
+				//printf("길이 : %d\n",len);
+				//printf("파일명 : %s\n",filename);
+
+				send(client_fd, filename, sizeof(filename), 0);
 			}
-						
+			status = 0;			
 		}
-	    send(client_fd, "END\n", 256, 0);
+        send(client_fd, &status, sizeof(int), 0);
+	    
 		closedir(d);
 	}
 
 }
-    */
+    
