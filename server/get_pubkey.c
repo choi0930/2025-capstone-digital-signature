@@ -9,7 +9,8 @@ int cert_get_pubkey(int client_fd, EVP_PKEY **pkey) {
         return -1;
     }
 
-    printf("인증서 길이 : %d\n", cert_len);
+    //printf("인증서 길이 : %d\n", cert_len);
+    
     unsigned char *buf = malloc(cert_len);
     if (!buf) {
         perror("메모리 할당 실패");
