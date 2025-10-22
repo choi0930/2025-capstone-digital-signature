@@ -49,6 +49,7 @@ int clnt_put(int client_fd, char *buffer, char *command, EVP_PKEY *pub_key){
         if(recv_buf == NULL) {
             perror("malloc failed");
             success =0;
+            send(client_fd, &success, sizeof(int), 0);
             break;
         }
 
@@ -56,6 +57,7 @@ int clnt_put(int client_fd, char *buffer, char *command, EVP_PKEY *pub_key){
         if(recv_bytes != total_len){
             perror("send failed");
             success =0;
+            send(client_fd, &success, sizeof(int), 0);
             break;
         }
 
@@ -72,6 +74,7 @@ int clnt_put(int client_fd, char *buffer, char *command, EVP_PKEY *pub_key){
             printf("\tverify fail\n");
             success = 0;
             free(recv_buf);
+            send(client_fd, &success, sizeof(int), 0);
             break;
         }
 
@@ -79,6 +82,7 @@ int clnt_put(int client_fd, char *buffer, char *command, EVP_PKEY *pub_key){
             perror("파일 쓰기 오류 발생: \n");
             success = 0;
             free(recv_buf);
+            send(client_fd, &success, sizeof(int), 0);
             break;
         }
 
@@ -89,7 +93,9 @@ int clnt_put(int client_fd, char *buffer, char *command, EVP_PKEY *pub_key){
         //printf("--------------------------------\n");
         //printf("\n");
         cnt++;
-    }
+        success = 1;
+        send(client_fd, &success, sizeof(int), 0);
+    }/*end while*/
     
     if(file_len < 0){
         perror("파일 수신 오류 발생: \n");
@@ -105,7 +111,7 @@ int clnt_put(int client_fd, char *buffer, char *command, EVP_PKEY *pub_key){
         remove(filename); //검증이 실패했거나 파일 write, 수신에 오류가 발생시 파일 삭제
     }
 
-    send(client_fd, &success, sizeof(int), 0);		//write 성공 여부를 client 송신
+    //send(client_fd, &success, sizeof(int), 0);		//write 성공 여부를 client 송신
 
     //printf("\n");
     //printf("=======[데이터 수신 끝]=========\n\n");

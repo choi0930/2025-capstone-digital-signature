@@ -82,6 +82,7 @@ int put_file(int sockfd){
         if(send_buf == NULL) {
             perror("malloc failed");
             status = 0;
+            recv(sockfd, &status, sizeof(int), 0);	//검증동작 이상없는지 확인
             break;
         }
 
@@ -94,14 +95,18 @@ int put_file(int sockfd){
             perror("send failed");
             status = 0;
             free(send_buf);
+            recv(sockfd, &status, sizeof(int), 0);	//검증동작 이상없는지 확인
             break;
         }
         free(send_buf);
         cnt++;
+        
+        recv(sockfd, &status, sizeof(int), 0);	//검증동작 이상없는지 확인
+        if(!status) break;
     }
     close(fd);
     
-    recv(sockfd, &status, sizeof(int), 0);	//서버에서 받았는지 확인 메세지 수신
+    //recv(sockfd, &status, sizeof(int), 0);	//서버에서 받았는지 확인 메세지 수신
     if(status){//업로드 성공여부 판단
         printf("========[업로드 완료]========\n\n");
     }else{
