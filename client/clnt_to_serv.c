@@ -10,7 +10,10 @@ int clnt_to_serv(int sockfd){
     //인증서 전송
     send_cert(sockfd);
     //서버의 인증서 수신후 CA에서 발급받았던 인증서였는지 검증후 공개키 추출
-    cert_get_pubkey(sockfd, &pub_key);
+    int check = cert_get_pubkey(sockfd, &pub_key);
+    if(check != 0){
+        return 0;
+    }
     
     // 4. 데이터 송수신
     while(1){

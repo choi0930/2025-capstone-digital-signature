@@ -98,12 +98,13 @@ void* handle_clnt(void *arg){
 		char buffer[BUFFER_SIZE], command[10];
 		//printf("clnt_sock : %d\n", clnt_sock);
 		//접속한 클라이언트의 인증서를 수신후 CA에서 발급받았던 인증서인지 검증후 공개키 추출
-		cert_get_pubkey(clnt_sock, &pub_key);
-		
-
+		int check = cert_get_pubkey(clnt_sock, &pub_key);
 		//서버 인증서 접속한 클라이언트에게 송신
 		send_cert(clnt_sock);
 
+		if(check != 0){
+			return 0;
+		}
 		while(1){
 			memset(buffer, 0x00, BUFFER_SIZE);
 			
